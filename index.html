@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Digital Clock</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Quicksand', sans-serif;
+            transition: background 1s linear;
+            position: relative;
+        }
+
+        body.sunrise { background: linear-gradient(to bottom, #6d60a1, #f4b6c2); }
+        body.day     { background: linear-gradient(to bottom, #4facfe, #00f2fe); }
+        body.sunset  { background: linear-gradient(to bottom, #4e2968, #faa499); }
+        body.night   { background: linear-gradient(to bottom, #09203f, #537895); }
+
+        .orbit-system {
+            position: absolute;
+            top: 100%; 
+            left: 50%;
+            width: 180vmin; 
+            height: 180vmin;
+            transform: translate(-50%, -50%); 
+            border-radius: 50%;
+            z-index: 2;
+            pointer-events: none;
+            will-change: transform;
+        }
+
+        .planet {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            left: 50%;
+            transform-origin: center center;
+            margin-left: -60px; 
+            margin-top: -40px;
+        }
+
+        .sun {
+            top: 0%; 
+            margin-top: 0px;
+            background: radial-gradient(circle, #ffd200 0%, #f7971e 100%);
+            box-shadow: 0 0 60px #ffd200, 0 0 100px #f7971e;
+        }
+
+        .moon {
+            top: 100%;
+            margin-top: -100px;
+            background: #dcdce6;
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.8);
+            overflow: hidden;
+        }
+        
+        .moon::before {
+            content: '';
+            position: absolute;
+            top: 20px; left: 30px; width: 20px; height: 20px;
+            background: rgba(0,0,0,0.1); border-radius: 50%;
+            box-shadow: 40px 10px 0 -5px rgba(0,0,0,0.1), 20px 40px 0 5px rgba(0,0,0,0.1);
+        }
+
+        .stars {
+            position: absolute; width: 100%; height: 100%; top: 0; left: 0;
+            background-image: 
+                radial-gradient(white 1px, transparent 1px),
+                radial-gradient(white 2px, transparent 2px);
+            background-size: 50px 50px, 100px 100px;
+            opacity: 0;
+            transition: opacity 2s;
+            z-index: 0;
+        }
+
+        .cloud-container {
+            position: absolute; width: 100%; height: 100%; top: 0; left: 0;
+            z-index: 1; pointer-events: none;
+        }
+        .cloud {
+            position: absolute; background: rgba(255,255,255,0.7);
+            border-radius: 100px;
+            animation: drift linear infinite;
+        }
+        @keyframes drift { from { transform: translateX(-150px); } to { transform: translateX(100vw); } }
+        
+        .c1 { width: 100px; height: 40px; top: 20%; animation-duration: 25s; }
+        .c2 { width: 160px; height: 60px; top: 10%; animation-duration: 35s; animation-delay: -10s; }
+        .c3 { width: 120px; height: 50px; top: 30%; animation-duration: 45s; animation-delay: -5s; }
+
+        .clock-glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 30px 60px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            z-index: 100;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        #time { font-size: 80px; color: #fff; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        #formatted-date { font-size: 18px; color: #fff; margin-top: -7px; }
+        #greeting { font-size: 24px; color: #fff; font-family: 'Fredoka One', cursive; margin-bottom: 5px; }
+    </style>
+
+    <script>
+        function updateSystem() {
+            const now = new Date();
+            const dateString = now.toLocaleDateString(undefined, {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'  });
+            document.getElementById('formatted-date').innerText = dateString;
+
+            const hours = now.getHours(); // TESTING HOURS: 0-23 (military time)
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            
+            const totalMinutes = (hours * 60) + minutes + (seconds / 60);
+
+            const rotation = (totalMinutes - 720) * 0.25;
+
+            const system = document.querySelector('.orbit-system');
+            system.style.transform = `translate(-50%, -50%) rotate(${rotation}deg)`;
+
+            const sun = document.querySelector('.sun');
+            const moon = document.querySelector('.moon');
+            
+            sun.style.transform = `rotate(${-rotation}deg)`;
+            moon.style.transform = `rotate(${-rotation}deg)`;
+
+            const body = document.body;
+            const stars = document.querySelector('.stars');
+            const clouds = document.querySelector('.cloud-container');
+            let greeting = "";
+            
+            body.className = "";
+            if (hours >= 5 && hours < 8) {
+                body.classList.add("sunrise");
+                greeting = "Good Morning! 🌅";
+                stars.style.opacity = 0;
+                clouds.style.opacity = 0.8;
+            } else if (hours >= 8 && hours < 17) {
+                body.classList.add("day");
+                greeting = "Good Afternoon! 🌤️";
+                stars.style.opacity = 0;
+                clouds.style.opacity = 1;
+            } else if (hours >= 17 && hours < 20) {
+                body.classList.add("sunset");
+                greeting = "Good Evening! 🌇";
+                stars.style.opacity = 0.3;
+                clouds.style.opacity = 0.8;
+            } else {
+                body.classList.add("night");
+                greeting = "Good Night! 🌙";
+                stars.style.opacity = 1;
+                clouds.style.opacity = 0.2;
+            }
+
+            let ampm = hours >= 12 ? 'PM' : 'AM';
+            let dispH = hours % 12;
+            dispH = dispH ? dispH : 12;
+            let dispM = minutes < 10 ? '0' + minutes : minutes;
+            let dispS = seconds < 10 ? '0' + seconds : seconds;
+
+            document.getElementById('time').innerHTML = `${dispH}:${dispM}:${dispS} <span style="font-size:30px">${ampm}</span>`;
+            document.getElementById('greeting').innerText = greeting;
+        }
+
+        window.onload = function() {
+            updateSystem();
+            setInterval(updateSystem, 1000);
+        };
+    </script>
+</head>
+<body>
+
+    <div class="stars"></div>
+
+    <div class="orbit-system">
+        <div class="planet sun"></div>
+        <div class="planet moon"></div>
+    </div>
+
+    <div class="cloud-container">
+        <div class="cloud c1"></div>
+        <div class="cloud c2"></div>
+        <div class="cloud c3"></div>
+    </div>
+
+    <div class="clock-glass">
+        <div id="greeting">Loading...</div>
+        <div id="time">00:00:00</div>
+        <div id="formatted-date">Date</div>
+    </div>
+
+</body>
+</html>
