@@ -1,6 +1,6 @@
 # Digital Screensaver Clock
 
-Ambient Desk Screensaver is a browser-based digital clock designed for desks, workspaces, and fullscreen displays. It combines a large live clock with animated day and night scenes, celestial motion, clouds, stars, contextual greetings, and optional generative ambient music.
+Digital Screensaver Clock is a browser-based digital clock designed for desktops ONLY, workspaces, and fullscreen displays. It combines a large live clock with animated day and night scenes, celestial motion, clouds, stars, contextual greetings, and optional generative ambient music.
 
 ## Features
 
