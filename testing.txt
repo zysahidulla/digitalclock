@@ -353,6 +353,7 @@
         // Time, Celestial Orbit, and Sky Transitions
         function updateSystem() {
             const now = new Date();
+            now.setHours(5, 0, 0);
             const dateString = now.toLocaleDateString(undefined, { 
                 weekday: 'long', 
                 year: 'numeric', 
