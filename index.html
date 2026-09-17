@@ -119,10 +119,9 @@
 
         .shooting-star {
             position: absolute;
-            height: 1.5px;
-            background: linear-gradient(-45deg, #fff, rgba(255, 255, 255, 0));
+            height: 2px;
+            background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.8) 70%, #ffffff 100%);
             filter: drop-shadow(0 0 6px #fff);
-            transform: rotate(-35deg);
             pointer-events: none;
             opacity: 0;
             z-index: 1;
@@ -429,18 +428,19 @@
             document.getElementById('greeting').innerText = greeting;
         }
 
-        // Night Shooting Stars
         function spawnShootingStar() {
             const hours = new Date().getHours();
-            // Active only during night hours (6:00 PM to 4:59 AM)
             if (hours < 18 && hours >= 5) return;
 
             const star = document.createElement('div');
             star.className = 'shooting-star';
             
-            const startX = Math.random() * (window.innerWidth * 0.75);
+            // Spawn across top and upper-left area
+            const startX = Math.random() * (window.innerWidth * 0.8);
             const startY = Math.random() * (window.innerHeight * 0.4);
-            const length = 70 + Math.random() * 80;
+            const length = 120 + Math.random() * 100;
+            const travelDistance = 600 + Math.random() * 400; // Far enough to streak across the sky
+            const angle = -30; // upward-right angle in degrees
 
             star.style.left = `${startX}px`;
             star.style.top = `${startY}px`;
@@ -449,11 +449,22 @@
             document.body.appendChild(star);
 
             star.animate([
-                { transform: 'translate(0, 0) rotate(-35deg)', opacity: 1 },
-                { transform: `translate(${length * 2.5}px, ${length * 1.8}px) rotate(-35deg)`, opacity: 0 }
+                { 
+                    transform: `rotate(${angle}deg) translateX(0)`, 
+                    opacity: 0 
+                },
+                { 
+                    transform: `rotate(${angle}deg) translateX(${travelDistance * 0.2}px)`, 
+                    opacity: 1, 
+                    offset: 0.15 
+                },
+                { 
+                    transform: `rotate(${angle}deg) translateX(${travelDistance}px)`, 
+                    opacity: 0 
+                }
             ], {
-                duration: 900 + Math.random() * 600,
-                easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+                duration: 800 + Math.random() * 500,
+                easing: 'ease-in-out'
             }).onfinish = () => star.remove();
         }
         setInterval(spawnShootingStar, 4500);
